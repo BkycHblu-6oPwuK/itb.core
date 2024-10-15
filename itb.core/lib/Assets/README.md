@@ -22,4 +22,4 @@ $vite->includeAssets([
 
 - ```Vite::includeAssets``` - принимает массив путей относительно корневой директории с package.json с vite
 
-Более подробно - ```https://git.itb-dev.ru/ITB-dev/example_template```
+Более подробно - https://git.itb-dev.ru/ITB-dev/example_template
