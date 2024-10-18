@@ -7,6 +7,7 @@
 Классы Хэлперы
 
 - DateHelper
+- FilesHelper
 - HlblockHelper
 - IblockHelper
 - LanguageHelper
