@@ -4,8 +4,9 @@
 
 ```bash
 MODE = development|production # локально ставим development, на боевом через ftp устанавливаем production
-VITE_BASE_PATH = /local/js/vite/dist/
-VITE_PORT = 5173 # как у контейнера node
+VITE_BASE_PATH = local/js/vite # базовый путь до директории с vite
+VITE_CLIENT_PATH = dist/client # директория с клиентскими ассетами относительно базовой директории
+VITE_PORT = 5173 # порт сервера для режима development, в контейнер node так же нужно прокинуть порт
 ```
 
 Получение объекта класса:
@@ -20,6 +21,33 @@ $vite->includeAssets([
 ]);
 ```
 
-- ```Vite::includeAssets``` - принимает массив путей относительно корневой директории с package.json с vite
+- ```Vite::includeAssets``` - принимает массив путей относительно корневой директории vite
 
 Более подробно - https://git.itb-dev.ru/ITB-dev/example_template
+
+## SSR
+
+для получения html с node ssr сервера определить переменные 
+
+```bash
+VITE_SSR_ENABLE = 0|1 # включен ssr или нет
+VITE_SSR_HOST = 'localhost'; # или название докер контейнера с node где запускается ssr
+VITE_SSR_PORT = 5174 # в контейнер так же нужно прокинуть порт
+```
+
+метод для получения верстки ```getSsrContent```, параметром передается страница которая должа быть получена название страницы соответствует ключу из build.rollupOptions.input
+
+```php
+Vite::getSsrContent('test')
+```
+
+Более подробно (основа для проета с основной ветки) - https://git.itb-dev.ru/ITB-dev/example_template
+
+основа для vite с ветки ssr_version - https://git.itb-dev.ru/ITB-dev/example_template/src/branch/ssr_version
+
+
+## Дополнительные методы класса Vite
+
+- ```ssrServerIsAvailable``` - статический метод, проверяет доступен ли сервер node ssr
+- ```ssrEnable``` - статический метод, проверяет включен ли ssr
+- ```isProduction``` - статический метод, проверяет доступен ли сервер node ssr

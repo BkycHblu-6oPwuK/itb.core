@@ -3,10 +3,9 @@
 namespace Itb\Core\Assets;
 
 use Bitrix\Main\Page\Asset;
-use InvalidArgumentException;
 
 /**
- * Класс для подключения js и css из vite. В vite.config должен быть manifest: true
+ * Класс для подключения js и css из vite, а так же получения html с ssr сервера
  */
 class Vite
 {
@@ -16,6 +15,7 @@ class Vite
     private $isProduction = true;
     private $localhostBasePath;
     private $viteClientIsIncluded = false;
+    private $clientDirectoryPath = '';
     private static $instance;
 
     private function __construct(){}
@@ -27,27 +27,19 @@ class Vite
      */
     private function initialize()
     {
-        $this->basePath = $this->getEnvVar('VITE_BASE_PATH');
-        $this->isProduction = $this->getEnvVar('MODE') === 'production';
-        $this->manifestPath = $_SERVER['DOCUMENT_ROOT'] . $this->basePath . '.vite/manifest.json';
+        $clientDirectoryPath = getEnvVar('VITE_CLIENT_PATH');
+        if($clientDirectoryPath) $this->clientDirectoryPath = $clientDirectoryPath . '/';
+        $this->basePath = '/' . getEnvVar('VITE_BASE_PATH') . '/';
+        $this->isProduction = self::isProduction();
+        $this->manifestPath = "{$_SERVER['DOCUMENT_ROOT']}{$this->basePath}{$this->clientDirectoryPath}.vite/manifest.json";
     
         if ($this->isProduction) {
             $this->loadManifest();
         } else {
-            $vitePort = $this->getEnvVar('VITE_PORT');
+            $vitePort = getEnvVar('VITE_PORT');
             $this->localhostBasePath = "http://localhost:{$vitePort}{$this->basePath}";
         }
     }
-
-    protected function getEnvVar($varName)
-    {
-        $value = getenv($varName);
-        if ($value === false) {
-            throw new InvalidArgumentException("Environment variable '{$varName}' is not set or is empty.");
-        }
-        return $value;
-    }
-    
 
     /**
      * Возвращает объект класса
@@ -94,7 +86,7 @@ class Vite
             $asset = $this->manifest[$entry];
             if (isset($asset['css'])) {
                 foreach ($asset['css'] as $cssFile) {
-                    $cssFiles[] = $this->basePath . $cssFile;
+                    $cssFiles[] = $this->basePath . $this->clientDirectoryPath . $cssFile;
                 }
             }
             if (isset($asset['imports'])) {
@@ -124,7 +116,7 @@ class Vite
                 if (isset($this->manifest[$entry])) {
                     $asset = $this->manifest[$entry];
                     $assets['js'][] = [
-                        'file' => $this->basePath . $asset['file'],
+                        'file' => $this->basePath . $this->clientDirectoryPath . $asset['file'],
                         'issetImports' => isset($asset['imports'])
                     ];
                     $this->collectCssImports($entry, $assets['css']);
@@ -139,7 +131,6 @@ class Vite
                 $assets['js'][]['file'] = $this->localhostBasePath . $entry;
             }
         }
-
         return $assets;
     }
 
@@ -167,5 +158,62 @@ class Vite
                 $bitrixAssetObj->addCss(htmlspecialchars($cssFile, ENT_QUOTES));
             }
         }
+    }
+
+    /**
+     * получает html переданной страницы с сервера node для ssr, VITE_SSR_ENABLE должно быть установлено в значение 1
+     * @throws InvalidArgumentException
+     */
+    public static function getSsrContent(string $page) : ?string
+    {
+        $ssrEnable = self::ssrEnable();
+        if(!$ssrEnable) return null;
+        $httpClient = new \Bitrix\Main\Web\HttpClient();
+        $response = $httpClient->get(self::getSsrServerUrl() . "/{$page}");
+        if ($response && $httpClient->getStatus() === 200) {
+            return $response;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public static function getSsrServerUrl() : string
+    {
+        static $ssrServerUrl = null;
+        if($ssrServerUrl === null) {
+            $ssrPort = getEnvVar('VITE_SSR_PORT');
+            $host = getEnvVar('VITE_SSR_HOST');
+            $ssrServerUrl = "http://{$host}:{$ssrPort}";
+        }
+        return $ssrServerUrl;
+    }
+
+    /**
+     * Доступен ли node js сервер для ssr
+     */
+    public static function ssrServerIsAvailable() : bool
+    {
+        $httpClient = new \Bitrix\Main\Web\HttpClient();
+        return $httpClient->get(self::getSsrServerUrl()) !== false;
+    }
+
+    /**
+     * Включен ли ssr
+     */
+    public static function ssrEnable() : bool
+    {
+        return (bool)getEnvVar('VITE_SSR_ENABLE', false);
+    }
+
+    /**
+     * Проверка на продакшен среду
+     * @throws InvalidArgumentException если переменная MODE не объявлена
+     */
+    public static function isProduction() : bool
+    {
+        return getEnvVar('MODE') === 'production';
     }
 }
