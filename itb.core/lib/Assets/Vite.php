@@ -164,12 +164,13 @@ class Vite
      * получает html переданной страницы с сервера node для ssr, VITE_SSR_ENABLE должно быть установлено в значение 1
      * @throws InvalidArgumentException
      */
-    public static function getSsrContent(string $page) : ?string
+    public static function getSsrContent(string $page, ?array $data = null) : ?string
     {
         $ssrEnable = self::ssrEnable();
         if(!$ssrEnable) return null;
         $httpClient = new \Bitrix\Main\Web\HttpClient();
-        $response = $httpClient->get(self::getSsrServerUrl() . "/{$page}");
+        $httpClient->setHeader('Content-Type', 'application/json', true);
+        $response = $httpClient->post(self::getSsrServerUrl() . "/{$page}", $data ? \Bitrix\Main\Web\Json::encode(['data' => $data]) : $data);
         if ($response && $httpClient->getStatus() === 200) {
             return $response;
         } else {
