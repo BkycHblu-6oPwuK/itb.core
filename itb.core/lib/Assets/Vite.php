@@ -18,9 +18,9 @@ class Vite
     private $clientDirectoryPath = '';
     private static $instance;
 
-    private function __construct(){}
-    private function __clone(){}
-    private function __wakeup(){}
+    private function __construct() {}
+    private function __clone() {}
+    private function __wakeup() {}
 
     /**
      * инициализация параметров необходимых для работы класса
@@ -28,11 +28,11 @@ class Vite
     private function initialize()
     {
         $clientDirectoryPath = getEnvVar('VITE_CLIENT_PATH');
-        if($clientDirectoryPath) $this->clientDirectoryPath = $clientDirectoryPath . '/';
+        if ($clientDirectoryPath) $this->clientDirectoryPath = $clientDirectoryPath . '/';
         $this->basePath = '/' . getEnvVar('VITE_BASE_PATH') . '/';
         $this->isProduction = self::isProduction();
         $this->manifestPath = "{$_SERVER['DOCUMENT_ROOT']}{$this->basePath}{$this->clientDirectoryPath}.vite/manifest.json";
-    
+
         if ($this->isProduction) {
             $this->loadManifest();
         } else {
@@ -123,7 +123,7 @@ class Vite
                 }
             }
         } else {
-            if(!$this->viteClientIsIncluded){
+            if (!$this->viteClientIsIncluded) {
                 $assets['js'][]['file'] = $this->localhostBasePath . '@vite/client';
                 $this->viteClientIsIncluded = true;
             }
@@ -147,7 +147,7 @@ class Vite
         $bitrixAssetObj = Asset::getInstance();
         foreach ($assets['js'] as $jsInfo) {
             $jsFile = htmlspecialchars($jsInfo['file'], ENT_QUOTES);
-            if($jsInfo['issetImports'] || !$this->isProduction){
+            if ($jsInfo['issetImports'] || !$this->isProduction) {
                 $bitrixAssetObj->addString("<script type='module' src='{$jsFile}'></script>");
             } else {
                 $bitrixAssetObj->addJs($jsFile);
@@ -161,13 +161,39 @@ class Vite
     }
 
     /**
+     * Подключает js и css с помощью addExternalJs и addExternalCss класса CBitrixComponentTemplate, js type module если есть импорты.
+     *
+     * @param string[] $entries относительно директории в которой расположен vite
+     * @param CBitrixComponentTemplate $template в template.php можно просто передать $this
+     *
+     * @return void
+     */
+    public function includeExternalAssets(array $entries, \CBitrixComponentTemplate $template): void
+    {
+        $assets = $this->getAssetPaths($entries);
+        foreach ($assets['js'] as $jsInfo) {
+            $jsFile = htmlspecialchars($jsInfo['file'], ENT_QUOTES);
+            if ($jsInfo['issetImports'] || !$this->isProduction) {
+                echo "<script type='module' src='{$jsFile}'></script>";
+            } else {
+                $template->addExternalJs($jsFile);
+            }
+        }
+        if ($this->isProduction && !empty($assets['css'])) {
+            foreach ($assets['css'] as $cssFile) {
+                $template->addExternalCss(htmlspecialchars($cssFile, ENT_QUOTES));
+            }
+        }
+    }
+
+    /**
      * получает html переданной страницы с сервера node для ssr, VITE_SSR_ENABLE должно быть установлено в значение 1
      * @throws InvalidArgumentException
      */
-    public static function getSsrContent(string $page, ?array $data = null) : ?string
+    public static function getSsrContent(string $page, ?array $data = null): ?string
     {
         $ssrEnable = self::ssrEnable();
-        if(!$ssrEnable) return null;
+        if (!$ssrEnable) return null;
         $httpClient = new \Bitrix\Main\Web\HttpClient();
         $httpClient->setHeader('Content-Type', 'application/json', true);
         $response = $httpClient->post(self::getSsrServerUrl() . "/{$page}", $data ? \Bitrix\Main\Web\Json::encode(['data' => $data]) : $data);
@@ -181,10 +207,10 @@ class Vite
     /**
      * @throws InvalidArgumentException
      */
-    public static function getSsrServerUrl() : string
+    public static function getSsrServerUrl(): string
     {
         static $ssrServerUrl = null;
-        if($ssrServerUrl === null) {
+        if ($ssrServerUrl === null) {
             $ssrPort = getEnvVar('VITE_SSR_PORT');
             $host = getEnvVar('VITE_SSR_HOST');
             $ssrServerUrl = "http://{$host}:{$ssrPort}";
@@ -195,7 +221,7 @@ class Vite
     /**
      * Доступен ли node js сервер для ssr
      */
-    public static function ssrServerIsAvailable() : bool
+    public static function ssrServerIsAvailable(): bool
     {
         $httpClient = new \Bitrix\Main\Web\HttpClient();
         return $httpClient->get(self::getSsrServerUrl()) !== false;
@@ -204,7 +230,7 @@ class Vite
     /**
      * Включен ли ssr
      */
-    public static function ssrEnable() : bool
+    public static function ssrEnable(): bool
     {
         return (bool)getEnvVar('VITE_SSR_ENABLE', false);
     }
@@ -213,7 +239,7 @@ class Vite
      * Проверка на продакшен среду
      * @throws InvalidArgumentException если переменная MODE не объявлена
      */
-    public static function isProduction() : bool
+    public static function isProduction(): bool
     {
         return getEnvVar('MODE') === 'production';
     }
