@@ -192,8 +192,7 @@ class Vite
      */
     public static function getSsrContent(string $page, ?array $data = null): ?string
     {
-        $ssrEnable = self::ssrEnable();
-        if (!$ssrEnable) return null;
+        if(!self::ssrEnable() || !self::isProduction()) return null;
         $httpClient = new \Bitrix\Main\Web\HttpClient();
         $httpClient->setHeader('Content-Type', 'application/json', true);
         $response = $httpClient->post(self::getSsrServerUrl() . "/{$page}", $data ? \Bitrix\Main\Web\Json::encode(['data' => $data]) : $data);
