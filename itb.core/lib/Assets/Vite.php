@@ -165,11 +165,13 @@ class Vite
      *
      * @param string[] $entries относительно директории в которой расположен vite
      * @param CBitrixComponentTemplate $template в template.php можно просто передать $this
-     *
+     * 
      * @return void
+     * @deprecated Используйте includeAssets в component_epilog
      */
-    public function includeExternalAssets(array $entries, \CBitrixComponentTemplate $template): void
+    public function includeExternalAssets(array $entries, \CBitrixComponentTemplate $template)
     {
+        return;
         $assets = $this->getAssetPaths($entries);
         foreach ($assets['js'] as $jsInfo) {
             $jsFile = htmlspecialchars($jsInfo['file'], ENT_QUOTES);
