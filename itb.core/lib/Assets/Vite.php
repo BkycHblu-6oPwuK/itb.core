@@ -2,7 +2,6 @@
 
 namespace Itb\Core\Assets;
 
-use Bitrix\Bizproc\BaseType\StringType;
 use Bitrix\Main\Page\Asset;
 
 /**
