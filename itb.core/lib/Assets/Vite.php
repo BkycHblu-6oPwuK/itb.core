@@ -2,6 +2,7 @@
 
 namespace Itb\Core\Assets;
 
+use Bitrix\Bizproc\BaseType\StringType;
 use Bitrix\Main\Page\Asset;
 
 /**
@@ -9,31 +10,26 @@ use Bitrix\Main\Page\Asset;
  */
 class Vite
 {
+    private static $instance;
     private $manifestPath;
     private $basePath;
     private $manifest;
-    private $isProduction = true;
-    private $localhostBasePath;
-    private $viteClientIsIncluded = false;
     private $clientDirectoryPath = '';
-    private static $instance;
+    protected static $isProduction;
+    protected static $ssrEnable;
+    protected static $ssrPort;
+    protected static $ssrHost;
+    protected $localhostBasePath = '';
+    protected $viteClientIsIncluded = false;
 
-    private function __construct() {}
-    private function __clone() {}
-    private function __wakeup() {}
-
-    /**
-     * инициализация параметров необходимых для работы класса
-     */
-    private function initialize()
+    private function __construct()
     {
         $clientDirectoryPath = getEnvVar('VITE_CLIENT_PATH');
         if ($clientDirectoryPath) $this->clientDirectoryPath = $clientDirectoryPath . '/';
         $this->basePath = '/' . getEnvVar('VITE_BASE_PATH') . '/';
-        $this->isProduction = self::isProduction();
         $this->manifestPath = "{$_SERVER['DOCUMENT_ROOT']}{$this->basePath}{$this->clientDirectoryPath}.vite/manifest.json";
 
-        if ($this->isProduction) {
+        if (self::isProduction()) {
             $this->loadManifest();
         } else {
             $vitePort = getEnvVar('VITE_PORT');
@@ -41,19 +37,21 @@ class Vite
         }
     }
 
+    private function __clone() {}
+    private function __wakeup() {}
+
     /**
      * Возвращает объект класса
+     * 
      * @return static
      */
-    public static function getInstance()
+    public final static function getInstance()
     {
         if (static::$instance === null) {
             static::$instance = new static();
-            static::$instance->initialize();
         }
         return static::$instance;
     }
-
 
     /**
      * Загружает manifest.json
@@ -77,16 +75,18 @@ class Vite
      *
      * @param string $entry
      * @param array $cssFiles
-     *
      * @return void
      */
-    private function collectCssImports($entry, &$cssFiles): void
+    protected function collectCssImports($entry, &$cssFiles): void
     {
-        if (isset($this->manifest[$entry])) {
-            $asset = $this->manifest[$entry];
+        $manifest = $this->getManifest();
+        if (isset($manifest[$entry])) {
+            $basePath = $this->getBasePath();
+            $clientDirectoryPath = $this->getClientDirectoryPath();
+            $asset = $manifest[$entry];
             if (isset($asset['css'])) {
                 foreach ($asset['css'] as $cssFile) {
-                    $cssFiles[] = $this->basePath . $this->clientDirectoryPath . $cssFile;
+                    $cssFiles[] = $basePath . $clientDirectoryPath . $cssFile;
                 }
             }
             if (isset($asset['imports'])) {
@@ -101,7 +101,6 @@ class Vite
      * Получает пути до js и css файлов. Для prod среды js и css. Для dev только js, css импортируем в js
      *
      * @param array $entries
-     *
      * @return array
      */
     protected function getAssetPaths(array $entries): array
@@ -111,24 +110,28 @@ class Vite
             'css' => []
         ];
 
-        if ($this->isProduction) {
+        if (self::isProduction()) {
+            $manifest = $this->getManifest();
+            $basePath = $this->getBasePath();
+            $clientDirectoryPath = $this->getClientDirectoryPath();
             foreach ($entries as $entry) {
-                if (isset($this->manifest[$entry])) {
-                    $asset = $this->manifest[$entry];
+                if (isset($manifest[$entry])) {
+                    $asset = $manifest[$entry];
                     $assets['js'][] = [
-                        'file' => $this->basePath . $this->clientDirectoryPath . $asset['file'],
+                        'file' => $basePath . $clientDirectoryPath . $asset['file'],
                         'issetImports' => isset($asset['imports'])
                     ];
                     $this->collectCssImports($entry, $assets['css']);
                 }
             }
         } else {
+            $localhostBasePath = $this->getLocalhostBasePath();
             if (!$this->viteClientIsIncluded) {
-                $assets['js'][]['file'] = $this->localhostBasePath . '@vite/client';
+                $assets['js'][]['file'] = $localhostBasePath . '@vite/client';
                 $this->viteClientIsIncluded = true;
             }
             foreach ($entries as $entry) {
-                $assets['js'][]['file'] = $this->localhostBasePath . $entry;
+                $assets['js'][]['file'] = $localhostBasePath . $entry;
             }
         }
         return $assets;
@@ -138,7 +141,6 @@ class Vite
      * Подключает js через Asset::addJs, js type module через Asset::addString если есть импорты, и css через Asset::addCss. Для prod среды js и css. Для dev только js, css импортируем в js
      *
      * @param string[] $entries относительно директории в которой расположен vite
-     *
      * @return void
      */
     public function includeAssets(array $entries): void
@@ -147,13 +149,13 @@ class Vite
         $bitrixAssetObj = Asset::getInstance();
         foreach ($assets['js'] as $jsInfo) {
             $jsFile = htmlspecialchars($jsInfo['file'], ENT_QUOTES);
-            if ($jsInfo['issetImports'] || !$this->isProduction) {
+            if ($jsInfo['issetImports'] || !self::isProduction()) {
                 $bitrixAssetObj->addString("<script type='module' src='{$jsFile}'></script>");
             } else {
                 $bitrixAssetObj->addJs($jsFile);
             }
         }
-        if ($this->isProduction && !empty($assets['css'])) {
+        if (self::isProduction() && !empty($assets['css'])) {
             foreach ($assets['css'] as $cssFile) {
                 $bitrixAssetObj->addCss(htmlspecialchars($cssFile, ENT_QUOTES));
             }
@@ -175,13 +177,13 @@ class Vite
         $assets = $this->getAssetPaths($entries);
         foreach ($assets['js'] as $jsInfo) {
             $jsFile = htmlspecialchars($jsInfo['file'], ENT_QUOTES);
-            if ($jsInfo['issetImports'] || !$this->isProduction) {
+            if ($jsInfo['issetImports'] || !self::isProduction()) {
                 echo "<script type='module' src='{$jsFile}'></script>";
             } else {
                 $template->addExternalJs($jsFile);
             }
         }
-        if ($this->isProduction && !empty($assets['css'])) {
+        if (self::isProduction() && !empty($assets['css'])) {
             foreach ($assets['css'] as $cssFile) {
                 $template->addExternalCss(htmlspecialchars($cssFile, ENT_QUOTES));
             }
@@ -189,12 +191,44 @@ class Vite
     }
 
     /**
+     * Вернет массив с манифестом vite клиента
+     */
+    final protected function getManifest(): array
+    {
+        return $this->manifest;
+    }
+
+    /**
+     * Базовый путь до директории vite
+     */
+    protected function getBasePath(): string
+    {
+        return $this->basePath;
+    }
+
+    /**
+     * Базовый путь до директории с клиентскими ассетами относительно базовой директории
+     */
+    protected function getClientDirectoryPath(): string
+    {
+        return $this->clientDirectoryPath;
+    }
+
+    /**
+     * Базовый адрес сервера разработки
+     */
+    protected function getLocalhostBasePath(): string
+    {
+        return $this->localhostBasePath;
+    }
+
+    /**
      * получает html переданной страницы с сервера node для ssr, VITE_SSR_ENABLE должно быть установлено в значение 1
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException если не объявлены VITE_SSR_HOST, VITE_SSR_PORT и MODE 
      */
     public static function getSsrContent(string $page, ?array $data = null): ?string
     {
-        if(!self::ssrEnable() || !self::isProduction()) return null;
+        if (!self::ssrEnable() || !self::isProduction()) return null;
         $httpClient = new \Bitrix\Main\Web\HttpClient();
         $httpClient->setHeader('Content-Type', 'application/json', true);
         $response = $httpClient->post(self::getSsrServerUrl() . "/{$page}", $data ? \Bitrix\Main\Web\Json::encode(['data' => $data]) : $data);
@@ -206,21 +240,23 @@ class Vite
     }
 
     /**
-     * @throws InvalidArgumentException
+     * Возвращает url ssr сервера с протоколом http
+     * @throws InvalidArgumentException если не объявлены VITE_SSR_HOST и VITE_SSR_PORT
      */
     public static function getSsrServerUrl(): string
     {
         static $ssrServerUrl = null;
         if ($ssrServerUrl === null) {
-            $ssrPort = getEnvVar('VITE_SSR_PORT');
-            $host = getEnvVar('VITE_SSR_HOST');
-            $ssrServerUrl = "http://{$host}:{$ssrPort}";
+            $host = self::getSsrHost();
+            $port = self::getSsrPort();
+            $ssrServerUrl = "http://{$host}:{$port}";
         }
         return $ssrServerUrl;
     }
 
     /**
      * Доступен ли node js сервер для ssr
+     * @throws InvalidArgumentException если не объявлены VITE_SSR_HOST и VITE_SSR_PORT
      */
     public static function ssrServerIsAvailable(): bool
     {
@@ -229,11 +265,38 @@ class Vite
     }
 
     /**
+     * Возвращает host для ssr из переменнной VITE_SSR_HOST
+     * @throws InvalidArgumentException если переменная VITE_SSR_HOST не объявлена 
+     */
+    public static function getSsrHost(): string
+    {
+        if (self::$ssrHost === null) {
+            self::$ssrHost = getEnvVar('VITE_SSR_HOST');
+        }
+        return self::$ssrHost;
+    }
+
+    /**
+     * Возвращает port для ssr из переменнной VITE_SSR_PORT
+     * @throws InvalidArgumentException если переменная VITE_SSR_PORT не объявлена
+     */
+    public static function getSsrPort(): string
+    {
+        if (self::$ssrPort === null) {
+            self::$ssrPort = getEnvVar('VITE_SSR_PORT');
+        }
+        return self::$ssrPort;
+    }
+
+    /**
      * Включен ли ssr
      */
     public static function ssrEnable(): bool
     {
-        return (bool)getEnvVar('VITE_SSR_ENABLE', false);
+        if (self::$ssrEnable === null) {
+            self::$ssrEnable = (bool)getEnvVar('VITE_SSR_ENABLE', false);
+        }
+        return self::$ssrEnable;
     }
 
     /**
@@ -242,6 +305,9 @@ class Vite
      */
     public static function isProduction(): bool
     {
-        return getEnvVar('MODE') === 'production';
+        if (self::$isProduction === null) {
+            self::$isProduction = getEnvVar('MODE') === 'production';
+        }
+        return self::$isProduction;
     }
 }
