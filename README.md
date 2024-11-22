@@ -19,4 +19,4 @@
 
 - ```symfony/var-dumper``` - удобные дампы, функции dump() и dd()
 - ```illuminate/collections``` - коллекции laravel
-- ```vlucas/phpdotenv``` - загрузка переменных окружения из файла .env, подключать в init.php (```php \Dotenv\Dotenv::createUnsafeImmutable(__DIR__)->load() ```)
+- ```vlucas/phpdotenv``` - загрузка переменных окружения из файла .env, подключать в init.php (```\Dotenv\Dotenv::createUnsafeImmutable(__DIR__)->load()```)
