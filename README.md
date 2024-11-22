@@ -13,3 +13,10 @@
 - LanguageHelper
 - LocationHelper
 - PaginationHelper
+
+## Рекомендуемые пакеты composer для проектов
+Все пакеты устанавливаются с помощью команды ```composer require```
+
+- ```symfony/var-dumper``` - удобные дампы, функции dump() и dd()
+- ```illuminate/collections``` - коллекции laravel
+- ```vlucas/phpdotenv``` - загрузка переменных окружения из файла .env, подключать в init.php (```php \Dotenv\Dotenv::createUnsafeImmutable(__DIR__)->load() ```)
