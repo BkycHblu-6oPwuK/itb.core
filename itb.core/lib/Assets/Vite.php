@@ -148,11 +148,7 @@ class Vite
         $bitrixAssetObj = Asset::getInstance();
         foreach ($assets['js'] as $jsInfo) {
             $jsFile = htmlspecialchars($jsInfo['file'], ENT_QUOTES);
-            if ($jsInfo['issetImports'] || !self::isProduction()) {
-                $bitrixAssetObj->addString("<script type='module' src='{$jsFile}'></script>");
-            } else {
-                $bitrixAssetObj->addJs($jsFile);
-            }
+            $bitrixAssetObj->addString("<script type='module' src='{$jsFile}'></script>");
         }
         if (self::isProduction() && !empty($assets['css'])) {
             foreach ($assets['css'] as $cssFile) {
