@@ -20,6 +20,7 @@ class HlblockHelper
     public static function getHlblockIdByName(string $hlblockName): int
     {
         if (!isset(static::$hlblockCodeIdMap[$hlblockName])) {
+            Loader::includeModule("highloadblock"); 
             $id = HighloadBlockTable::getList([
                 'select' => ['ID'],
                 'filter' => ['NAME' => $hlblockName],
