@@ -13,6 +13,7 @@
 - LanguageHelper
 - LocationHelper
 - PaginationHelper
+- WebHelper
 
 ## Рекомендуемые пакеты composer для проектов
 Все пакеты устанавливаются с помощью команды ```composer require```
