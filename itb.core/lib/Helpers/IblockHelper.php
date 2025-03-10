@@ -2,6 +2,7 @@
 
 namespace Itb\Core\Helpers;
 
+use Bitrix\Iblock\Iblock;
 use Bitrix\Iblock\IblockTable;
 use Bitrix\Main\Loader;
 use Bitrix\Iblock\PropertyTable;
@@ -9,6 +10,7 @@ use Bitrix\Iblock\PropertyTable;
 class IblockHelper
 {
     static $iblockCodeIdMap = [];
+    static $entityMap = [];
 
     /**
      * Получает id инфоблока по его коду
@@ -39,6 +41,37 @@ class IblockHelper
     }
 
     /**
+     * Получить сущность для работы с элементами инфоблока по его символьному коду, так же должен быть задан сивольный код api
+     * @param string $iblockCode
+     * @throws \Exception
+     * @return \Bitrix\Iblock\ORM\CommonElementTable|string
+     */
+    public static function getElementApiTableByCode(string $iblockCode)
+    {
+        return self::getElementApiTable(self::getIblockIdByCode($iblockCode));
+    }
+
+    /**
+     * Получить сущность для работы с элементами инфоблока по его id, так же должен быть задан сивольный код api
+     * @param int $iblockId
+     * @throws \Exception
+     * @return \Bitrix\Iblock\ORM\CommonElementTable|string
+     */
+    public static function getElementApiTable(int $iblockId)
+    {
+        if (!isset(static::$entityMap[$iblockId])) {
+            Loader::includeModule('iblock');
+            $entity = Iblock::wakeUp($iblockId)->getEntityDataClass();
+            if (!$entity) {
+                throw new \Exception("entity with not found in iblock {$iblockId}");
+            }
+            static::$entityMap[$iblockId] = $entity;
+        }
+
+        return static::$entityMap[$iblockId];
+    }
+
+    /**
      * @param $code
      * @param $iblockId
      *
@@ -49,12 +82,12 @@ class IblockHelper
     public static function getIblockPropIdByCode(string $code, int $iblockId): int
     {
         $propId = PropertyTable::query()
-        ->setSelect(['ID'])
-        ->where('IBLOCK_ID', $iblockId)
-        ->where('CODE',$code)
-        ->setCacheTtl(86400)
-        ->exec()
-        ->fetch()['ID'];
+            ->setSelect(['ID'])
+            ->where('IBLOCK_ID', $iblockId)
+            ->where('CODE', $code)
+            ->setCacheTtl(86400)
+            ->exec()
+            ->fetch()['ID'];
         return $propId ? (int)$propId : 0;
     }
 
@@ -80,5 +113,4 @@ class IblockHelper
 
         return $values;
     }
-
 }

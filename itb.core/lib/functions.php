@@ -1,6 +1,6 @@
 <?php
 /**
- * @throws InvalidArgumentException если @param $default null и @param $throw true, а значение переменной false
+ * @throws \InvalidArgumentException если @param $default null и @param $throw true, а значение переменной false
  */
 function getEnvVar(string $varName, mixed $default = null, bool $throw = true)
 {
