@@ -14,6 +14,7 @@
 - LocationHelper
 - PaginationHelper
 - WebHelper
+- SsrHelper
 
 
 Psr logger - простая реализация, интерфейсы psr лежат в модуле main bitrix
