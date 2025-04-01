@@ -20,3 +20,11 @@
 Psr logger - простая реализация, интерфейсы psr лежат в модуле main bitrix
 
 - Itb\Core\Logger\FileLogger
+
+## подключение
+в init.php после подключения autoload composer сделайте
+
+```php
+Bitrix\Main\Loader::includeModule('itb.core');
+```
+

@@ -35,7 +35,7 @@ VITE_SSR_HOST = 'localhost'; # или название докер контейн
 VITE_SSR_PORT = 5174 # в контейнер так же нужно прокинуть порт
 ```
 
-метод для получения верстки ```getSsrContent```, параметром передается страница которая должа быть получена название страницы соответствует ключу из build.rollupOptions.input
+метод для получения верстки ```getSsrContent``` доступен в классе ``` Itb\Core\Helpers\SsrHelper ```, параметром передается страница которая должа быть получена название страницы соответствует ключу из build.rollupOptions.input
 
 Вторым параметром передаются данные для вашего vue приложения
 
@@ -44,7 +44,7 @@ VITE_SSR_PORT = 5174 # в контейнер так же нужно прокин
 Запрос вернет null если ```VITE_SSR_ENABLE``` == 0 или если не продакшен среда
 
 ```php
-Vite::getSsrContent('pagename', []|null)
+SsrHelper::getSsrContent('pagename', []|null)
 ```
 
 Более подробно (основа для проета с основной ветки) - https://git.itb-dev.ru/ITB-dev/example_template
@@ -52,6 +52,6 @@ Vite::getSsrContent('pagename', []|null)
 основа для vite с ветки ssr_version - https://git.itb-dev.ru/ITB-dev/example_template/src/branch/ssr_version
 
 
-## Дополнительные методы класса Vite
+## Дополнительные методы класса SsrHelper
 
 - ```ssrServerIsAvailable``` - статический метод, проверяет доступен ли сервер node ssr
