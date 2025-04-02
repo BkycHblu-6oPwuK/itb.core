@@ -127,8 +127,8 @@ final class Vite
     }
 
     /**
-     * Подключает js через Asset::addJs, js type module через Asset::addString если есть импорты, и css через Asset::addCss. Для prod среды js и css. Для dev только js, css импортируем в js
-     *
+     * Подключает js через Asset::addJs, js type module через Asset::addString если есть импорты, и css через Asset::addCss. Для prod среды js и css. Для dev только js, css импортируем в js.
+     * Вызывать данный метод нужно в некешируемой области
      * @param string[] $entries относительно директории в которой расположен vite
      * @return void
      */

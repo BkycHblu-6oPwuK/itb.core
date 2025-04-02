@@ -21,7 +21,7 @@ $vite->includeAssets([
 ]);
 ```
 
-- ```Vite::includeAssets``` - принимает массив путей относительно корневой директории vite
+- ```Vite::includeAssets``` - принимает массив путей относительно корневой директории vite, вызывать его нужно в некешируемой области
 
 Более подробно - https://git.itb-dev.ru/ITB-dev/example_template
 
@@ -50,8 +50,3 @@ SsrHelper::getSsrContent('pagename', []|null)
 Более подробно (основа для проета с основной ветки) - https://git.itb-dev.ru/ITB-dev/example_template
 
 основа для vite с ветки ssr_version - https://git.itb-dev.ru/ITB-dev/example_template/src/branch/ssr_version
-
-
-## Дополнительные методы класса SsrHelper
-
-- ```ssrServerIsAvailable``` - статический метод, проверяет доступен ли сервер node ssr
