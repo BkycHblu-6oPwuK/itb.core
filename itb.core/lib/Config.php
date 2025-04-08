@@ -13,6 +13,7 @@ final class Config
     private static ?bool $isEnableSsr = null;
     private static ?string $viteSsrPort = null;
     private static ?string $viteSsrHost = null;
+    public static string $pathToPublicImages = "/local/js/vite/public/images";
 
     private function __construct() {}
 
