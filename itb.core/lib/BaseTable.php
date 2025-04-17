@@ -10,7 +10,7 @@ abstract class BaseTable extends DataManager
     {
         if (static::tableExists()) {
             $connection = \Bitrix\Main\Application::getConnection();
-            $connection->dropTable(self::getTableName());
+            $connection->dropTable(static::getTableName());
         }
     }
 
@@ -23,6 +23,6 @@ abstract class BaseTable extends DataManager
 
     public static function tableExists() : bool
     {
-        return static::getEntity()->getConnection()->isTableExists(self::getTableName());
+        return static::getEntity()->getConnection()->isTableExists(static::getTableName());
     }
 }
