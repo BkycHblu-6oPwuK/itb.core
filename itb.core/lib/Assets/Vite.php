@@ -138,11 +138,11 @@ final class Vite
         $bitrixAssetObj = Asset::getInstance();
         foreach ($assets['js'] as $jsInfo) {
             $jsFile = htmlspecialchars($jsInfo['file'], ENT_QUOTES);
-            $bitrixAssetObj->addString("<script type='module' src='{$jsFile}'></script>");
+            $bitrixAssetObj->addString("<script type='module' src='{$jsFile}'></script>", true);
         }
         if (Config::isProduction() && !empty($assets['css'])) {
             foreach ($assets['css'] as $cssFile) {
-                $bitrixAssetObj->addCss(htmlspecialchars($cssFile, ENT_QUOTES));
+                $bitrixAssetObj->addCss(htmlspecialchars($cssFile, ENT_QUOTES), true);
             }
         }
     }
