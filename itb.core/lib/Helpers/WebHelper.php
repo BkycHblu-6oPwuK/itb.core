@@ -18,4 +18,23 @@ class WebHelper
 
         return $rquid;
     }
+    public static function generateCode($length = 6): string
+    {
+        $result = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $result .= mt_rand(0, 9);
+        }
+
+        return $result;
+        //return mt_rand(100000, 999999);
+    }
+
+    public static function jsonAnswer(array $result)
+    {
+        global $APPLICATION;
+        $APPLICATION->RestartBuffer();
+        echo Json::encode($result);
+        \CMain::FinalActions();
+    }
 }
