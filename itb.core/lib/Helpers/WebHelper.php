@@ -34,7 +34,7 @@ class WebHelper
     {
         global $APPLICATION;
         $APPLICATION->RestartBuffer();
-        echo Json::encode($result);
+        echo \Bitrix\Main\Web\Json::encode($result);
         \CMain::FinalActions();
     }
 }
