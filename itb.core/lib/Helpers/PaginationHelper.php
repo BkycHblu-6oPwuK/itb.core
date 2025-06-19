@@ -54,4 +54,19 @@ class PaginationHelper
         }
         return $pages;
     }
+
+    public static function getPagination(int $itemsCnt, int $pageSize, string $pageUrlParam = 'page'): array
+    {
+        $pageCount = max(1, ceil($itemsCnt / $pageSize));
+        $requestPage = (int)\Bitrix\Main\Context::getCurrent()->getRequest()->get($pageUrlParam);
+        $currentPage = $requestPage ? min($requestPage, $pageCount) : 1;
+
+        return [
+            'pages'              => static::getPages($currentPage, $pageCount),
+            'pageSize'           => $pageSize,
+            'currentPage'        => $currentPage,
+            'pageCount'          => $pageCount,
+            'paginationUrlParam' => $pageUrlParam,
+        ];
+    }
 }
