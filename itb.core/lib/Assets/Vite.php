@@ -17,18 +17,21 @@ final class Vite
     private $clientDirectoryPath = '';
     private $localhostBasePath = '';
     private $viteClientIsIncluded = false;
+    private readonly Config $config;
 
     private function __construct()
     {
-        $clientDirectoryPath = Config::getViteClientPath();
+        $config = Config::getInstance();
+        $this->config = $config;
+        $clientDirectoryPath = $config->viteClientPath;
         if ($clientDirectoryPath) $this->clientDirectoryPath = $clientDirectoryPath . '/';
-        $this->basePath = '/' . Config::getViteBasePath() . '/';
+        $this->basePath = '/' . $config->viteBasePath . '/';
         $this->manifestPath = "{$_SERVER['DOCUMENT_ROOT']}{$this->basePath}{$this->clientDirectoryPath}.vite/manifest.json";
 
-        if (Config::isProduction()) {
+        if ($config->isProduction()) {
             $this->loadManifest();
         } else {
-            $vitePort = Config::getVitePort();
+            $vitePort = $config->vitePort;
             $this->localhostBasePath = "http://localhost:{$vitePort}{$this->basePath}";
         }
     }
@@ -103,7 +106,7 @@ final class Vite
             'css' => []
         ];
 
-        if (Config::isProduction()) {
+        if ($this->config->isProduction()) {
             foreach ($entries as $entry) {
                 if (isset($this->manifest[$entry])) {
                     $asset = $this->manifest[$entry];
@@ -127,8 +130,8 @@ final class Vite
     }
 
     /**
-     * Подключает js через Asset::addJs, js type module через Asset::addString если есть импорты, и css через Asset::addCss. Для prod среды js и css. Для dev только js, css импортируем в js.
-     * Вызывать данный метод нужно в некешируемой области
+     * Подключает js через Asset::addJs, js type module через Asset::addString если есть импорты, и css через Asset::addCss. Для prod среды js и css. Для dev только js, css импортируем в js
+     *
      * @param string[] $entries относительно директории в которой расположен vite
      * @return void
      */
@@ -140,37 +143,9 @@ final class Vite
             $jsFile = htmlspecialchars($jsInfo['file'], ENT_QUOTES);
             $bitrixAssetObj->addString("<script type='module' src='{$jsFile}'></script>", true);
         }
-        if (Config::isProduction() && !empty($assets['css'])) {
+        if ($this->config->isProduction() && !empty($assets['css'])) {
             foreach ($assets['css'] as $cssFile) {
                 $bitrixAssetObj->addCss(htmlspecialchars($cssFile, ENT_QUOTES), true);
-            }
-        }
-    }
-
-    /**
-     * Подключает js и css с помощью addExternalJs и addExternalCss класса CBitrixComponentTemplate, js type module если есть импорты.
-     *
-     * @param string[] $entries относительно директории в которой расположен vite
-     * @param CBitrixComponentTemplate $template в template.php можно просто передать $this
-     * 
-     * @return void
-     * @deprecated Используйте includeAssets в component_epilog
-     */
-    public function includeExternalAssets(array $entries, \CBitrixComponentTemplate $template)
-    {
-        return;
-        $assets = $this->getAssetPaths($entries);
-        foreach ($assets['js'] as $jsInfo) {
-            $jsFile = htmlspecialchars($jsInfo['file'], ENT_QUOTES);
-            if ($jsInfo['issetImports'] || !Config::isProduction()) {
-                echo "<script type='module' src='{$jsFile}'></script>";
-            } else {
-                $template->addExternalJs($jsFile);
-            }
-        }
-        if (Config::isProduction() && !empty($assets['css'])) {
-            foreach ($assets['css'] as $cssFile) {
-                $template->addExternalCss(htmlspecialchars($cssFile, ENT_QUOTES));
             }
         }
     }

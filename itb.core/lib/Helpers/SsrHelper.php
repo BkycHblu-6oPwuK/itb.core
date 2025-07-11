@@ -12,7 +12,8 @@ class SsrHelper
      */
     public static function getSsrContent(string $page, ?array $data = null): ?string
     {
-        if (!Config::isEnableViteSsr() || !Config::isProduction()) return null;
+        $config = Config::getInstance();
+        if (!$config->isEnableSsr || !$config->isProduction()) return null;
         $httpClient = new \Bitrix\Main\Web\HttpClient();
         $httpClient->setHeader('Content-Type', 'application/json', true);
         $response = $httpClient->post(self::getSsrServerUrl() . "/{$page}", $data ? \Bitrix\Main\Web\Json::encode(['data' => $data]) : $data);
@@ -31,8 +32,9 @@ class SsrHelper
     {
         static $ssrServerUrl = null;
         if ($ssrServerUrl === null) {
-            $host = Config::getViteSsrHost();
-            $port = Config::getViteSsrPort();
+            $config = Config::getInstance();
+            $host = $config->viteSsrHost;
+            $port = $config->viteSsrPort;
             $ssrServerUrl = "http://{$host}:{$port}";
         }
         return $ssrServerUrl;

@@ -1,67 +1,45 @@
 <?php
+
 namespace Itb\Core;
 
-/**
- * Конфиг для работы с переменными на сайте из .env
- */
 final class Config
 {
-    private static ?string $mode = null;
-    private static ?string $viteBasePath = null;
-    private static ?string $viteClientPath = null;
-    private static ?string $vitePort = null;
-    private static ?bool $isEnableSsr = null;
-    private static ?string $viteSsrPort = null;
-    private static ?string $viteSsrHost = null;
-    public static string $pathToPublicImages = "/local/js/vite/public/images";
+    private static ?self $instance = null;
 
-    private function __construct() {}
+    public readonly string $mode;
+    public readonly string $viteBasePath;
+    public readonly string $viteClientPath;
+    public readonly string $vitePort;
+    public readonly bool $isEnableSsr;
+    public readonly string $viteSsrPort;
+    public readonly string $viteSsrHost;
 
-    private static function loadEnvVar(mixed &$property, string $envName, mixed $default = null): mixed
+    public readonly string $pathToPublicImages;
+
+    private function __construct()
     {
-        if ($property === null) {
-            $property = getEnvVar($envName, $default);
-        }
-        return $property;
-    }
-
-    public static function getMode(): string
-    {
-        return self::loadEnvVar(self::$mode, 'MODE', 'production');
-    }
-
-    public static function isProduction(): bool
-    {
-        return self::getMode() === 'production';
+        $this->mode = $_ENV['MODE'] ?? 'production';
+        $this->viteBasePath = $_ENV['VITE_BASE_PATH'] ?? '';
+        $this->viteClientPath = $_ENV['VITE_CLIENT_PATH'] ?? '';
+        $this->vitePort = $_ENV['VITE_PORT'] ?? '';
+        $this->isEnableSsr = $_ENV['VITE_SSR_ENABLE'] ? $_ENV['VITE_SSR_ENABLE'] == 1 : false;
+        $this->viteSsrPort = $_ENV['VITE_SSR_PORT'] ?? '';
+        $this->viteSsrHost = $_ENV['VITE_SSR_HOST'] ?? '';
+        $this->pathToPublicImages = "/{$this->viteBasePath}/public";
     }
 
-    public static function getViteBasePath(): string
+    public static function getInstance(): self
     {
-        return self::loadEnvVar(self::$viteBasePath, 'VITE_BASE_PATH');
+        return self::$instance ??= new self();
     }
 
-    public static function getViteClientPath(): string
+    public function isProduction(): bool
     {
-        return self::loadEnvVar(self::$viteClientPath, 'VITE_CLIENT_PATH');
-    }
-    
-    public static function getVitePort(): string
-    {
-        return self::loadEnvVar(self::$vitePort, 'VITE_PORT');
-    }
-    
-    public static function isEnableViteSsr(): bool
-    {
-        return self::loadEnvVar(self::$isEnableSsr, 'VITE_SSR_ENABLE', false);
-    }
-    
-    public static function getViteSsrPort(): string
-    {
-        return self::loadEnvVar(self::$viteSsrPort, 'VITE_SSR_PORT');
+        return $this->mode === 'production';
     }
 
-    public static function getViteSsrHost(): string
+    public function getImagePublicPath(string $path)
     {
-        return self::loadEnvVar(self::$viteSsrHost, 'VITE_SSR_HOST');
+        return $this->pathToPublicImages . $path;
     }
 }
