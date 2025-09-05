@@ -1,8 +1,8 @@
 <?php
 
-namespace Itb\Core\Http\Resources;
+namespace Itb\Core\Traits;
 
-trait ResourceTrait
+trait Resourceble
 {
     public final function __get(string $property) : mixed
     {

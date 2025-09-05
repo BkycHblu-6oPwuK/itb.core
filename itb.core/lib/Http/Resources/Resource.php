@@ -1,9 +1,11 @@
 <?php
 namespace Itb\Core\Http\Resources;
 
+use Itb\Core\Traits\Resourceble;
+
 abstract class Resource implements ResourceInterface, \JsonSerializable, \ArrayAccess, \Countable
 {
-    use ResourceTrait;
+    use Resourceble;
 
     private $resource;
 
