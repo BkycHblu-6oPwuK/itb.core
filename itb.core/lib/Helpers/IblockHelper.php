@@ -11,6 +11,8 @@ class IblockHelper
 {
     static $iblockCodeIdMap = [];
     static $entityMap = [];
+    
+    private function __construct() {}
 
     /**
      * Получает id инфоблока по его коду

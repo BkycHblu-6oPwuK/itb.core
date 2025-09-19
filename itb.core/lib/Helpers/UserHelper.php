@@ -4,6 +4,8 @@ namespace Itb\Core\Helpers;
 
 class UserHelper
 {
+    private function __construct() {}
+    
     public static function generatePassword(int $length = 8) : string
     {
         $passwordChars = [

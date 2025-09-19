@@ -3,6 +3,7 @@ namespace Itb\Core\Helpers;
 
 class FilesHelper
 {
+    private function __construct() {}
     /**
      * @param array $files $_FILES
      */

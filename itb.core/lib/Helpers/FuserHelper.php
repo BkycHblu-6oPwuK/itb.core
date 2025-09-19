@@ -15,6 +15,7 @@ Loader::includeModule('iblock');
 
 class FuserHelper
 {
+    private function __construct() {}
     /**
      * Получает FUSER_ID из сессии пользователя или из cookies
      *

@@ -9,6 +9,7 @@ class HlblockHelper
 {
     static $hlblockCodeIdMap = [];
     static $hlblockCodeClassMap = [];
+    private function __construct() {}
 
     /**
      * Получает id хайлоадблока по его имени

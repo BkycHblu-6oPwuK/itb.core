@@ -6,6 +6,8 @@ use Itb\Core\Config;
 
 class SsrHelper
 {
+    private function __construct() {}
+    
     /**
      * получает html переданной страницы с сервера node для ssr, VITE_SSR_ENABLE должно быть установлено в значение 1
      * @throws InvalidArgumentException если не объявлены VITE_SSR_HOST, VITE_SSR_PORT и MODE 

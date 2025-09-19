@@ -6,6 +6,8 @@ use Bitrix\Sale\Internals\StatusTable;
 
 class SaleHelper
 {
+    private function __construct() {}
+    
     public static function getStatuses(): array
     {
         return StatusTable::query()->setSelect(['ID', 'NAME' => 'STATUS_LANG.NAME'])->where('STATUS_LANG.LID', \Bitrix\Main\Localization\Loc::getCurrentLang() ?: 'ru')->setCacheTtl(86400)->cacheJoins(true)->fetchAll();

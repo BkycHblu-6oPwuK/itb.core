@@ -4,6 +4,8 @@ namespace Itb\Core\Helpers;
 
 class PaginationHelper
 {
+    private function __construct() {}
+    
     public static function toArray(?\CIBlockResult $nav): array
     {
         if (!$nav) {

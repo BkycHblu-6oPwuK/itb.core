@@ -4,6 +4,7 @@ namespace Itb\Core\Helpers;
 
 class LanguageHelper
 {
+    private function __construct() {}
 
     /**
      * @param int $number

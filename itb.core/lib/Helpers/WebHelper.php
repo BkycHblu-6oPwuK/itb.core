@@ -4,6 +4,8 @@ namespace Itb\Core\Helpers;
 
 class WebHelper
 {
+    private function __construct() {}
+    
     public static function getUuidV4(): string
     {
         $data = random_bytes(16);

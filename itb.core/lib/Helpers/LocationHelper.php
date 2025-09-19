@@ -6,6 +6,8 @@ use Bitrix\Main\Loader;
 
 class LocationHelper
 {
+    private function __construct() {}
+    
     public static function get($filter = [], $select = ['*'])
     {
         if (!Loader::IncludeModule("sale")) {

@@ -4,6 +4,7 @@ namespace Itb\Core\Helpers;
 
 class DateHelper
 {
+    private function __construct() {}
     /**
      * @return string - "{$day} {$months_string_ru} {$year}"
      */
