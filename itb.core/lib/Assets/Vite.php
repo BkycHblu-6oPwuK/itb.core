@@ -130,9 +130,17 @@ final class Vite
     }
 
     /**
+     * @param string $entry src/js/main.js
+     */
+    public function include(string $entry) : void
+    {
+        $this->includeAssets([$entry]);
+    }
+
+    /**
      * Подключает js через Asset::addJs, js type module через Asset::addString если есть импорты, и css через Asset::addCss. Для prod среды js и css. Для dev только js, css импортируем в js
      *
-     * @param string[] $entries относительно директории в которой расположен vite
+     * @param string[] $entries относительно директории в которой расположен vite - src/js/main.js
      * @return void
      */
     public function includeAssets(array $entries): void
