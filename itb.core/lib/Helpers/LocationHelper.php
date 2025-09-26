@@ -111,7 +111,6 @@ class LocationHelper
         if (!$location) {
             return [];
         }
-        toFile(['$location' => $location]);
         if (!empty($location['CITY_ID']) && $location['CITY_ID'] == $location['ID']) {
             return $location;
         }
