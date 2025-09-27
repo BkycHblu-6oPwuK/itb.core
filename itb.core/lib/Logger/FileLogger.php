@@ -2,19 +2,25 @@
 
 namespace Itb\Core\Logger;
 
+use Itb\Core\Traits\PathNormalizerTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 class FileLogger implements LoggerInterface
 {
-    protected string $logFile;
+    use PathNormalizerTrait;
 
-    /**
-     * @param string $logFile path to log file
-     */
-    public function __construct(string $logFile)
+    protected string $logFile;
+    protected string $channel;
+
+    public function __construct(string $channel, string $baseDir)
     {
-        $this->logFile = $logFile;
+        $this->channel = $channel;
+        $normalizedDir = $this->normalizeBaseDir($baseDir);
+        if (!is_dir($normalizedDir)) {
+            mkdir($normalizedDir, 0777, true);
+        }
+        $this->logFile = rtrim($normalizedDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $channel . '.log';
     }
 
     public function emergency($message, array $context = []): void

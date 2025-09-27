@@ -1,4 +1,5 @@
 <?php
+
 if (!function_exists('firstNotEmpty')) {
     /**
      * Возвращает первое непустое значение или значение по умолчанию
@@ -18,12 +19,16 @@ if (!function_exists('firstNotEmpty')) {
     }
 }
 if (!function_exists('toFile')) {
-    function toFile(mixed $data, $path = 'local/logs/1.log'): void
+    function toFile(mixed $data): void
     {
+        static $logger = null;
+        if ($logger === null) {
+            $logger = \Bitrix\Main\DI\ServiceLocator::getInstance()->get(\Itb\Core\Logger\LoggerFactoryInterface::class)->channel();
+        }
         if (!is_array($data)) {
             $data = [$data];
         }
-        (new \Itb\Core\Logger\FileLogger($_SERVER['DOCUMENT_ROOT'] . "/{$path}"))->info('', $data);
+        $logger->info('', $data);
     }
 }
 if (!function_exists('isLighthouse')) {
