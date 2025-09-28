@@ -13,6 +13,9 @@ final class Config
     public readonly bool $isEnableSsr;
     public readonly string $viteSsrPort;
     public readonly string $viteSsrHost;
+    public readonly string $dateFormatSite;
+    public readonly string $actionLoadItems;
+    public readonly bool $enableSwitchCatalogType;
 
     public readonly string $pathToPublicImages;
 
@@ -22,10 +25,13 @@ final class Config
         $this->viteBasePath = $_ENV['VITE_BASE_PATH'] ?? '';
         $this->viteClientPath = $_ENV['VITE_CLIENT_PATH'] ?? '';
         $this->vitePort = $_ENV['VITE_PORT'] ?? '';
-        $this->isEnableSsr = $_ENV['VITE_SSR_ENABLE'] ? $_ENV['VITE_SSR_ENABLE'] == 1 : false;
+        $this->isEnableSsr = $_ENV['VITE_SSR_ENABLE'] == 1;
         $this->viteSsrPort = $_ENV['VITE_SSR_PORT'] ?? '';
         $this->viteSsrHost = $_ENV['VITE_SSR_HOST'] ?? '';
         $this->pathToPublicImages = "/{$this->viteBasePath}/public";
+        $this->dateFormatSite = 'd.m.Y';
+        $this->actionLoadItems = 'loadItems';
+        $this->enableSwitchCatalogType = $_ENV['SWITH_CATALOG_TYPES'] == 1;
     }
 
     public static function getInstance(): self

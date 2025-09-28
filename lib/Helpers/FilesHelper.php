@@ -1,5 +1,10 @@
 <?php
+
 namespace Itb\Core\Helpers;
+
+use Bitrix\Main\FileTable;
+use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Main\ORM\Query\Query;
 
 class FilesHelper
 {
@@ -7,9 +12,9 @@ class FilesHelper
     /**
      * @param array $files $_FILES
      */
-    public static function getFormattedToSafe(?array $files) : array
+    public static function getFormattedToSafe(?array $files): array
     {
-        if(empty($files)){
+        if (empty($files)) {
             return [];
         }
         $toSavefiles = [];
@@ -21,8 +26,25 @@ class FilesHelper
                 foreach ($l as $i => $v) {
                     $toSavefiles[$i][$k] = $v;
                 }
-            }	
+            }
         }
         return $toSavefiles;
+    }
+
+    public static function addPictireSrcInQuery(Query $query, string $thisFieldReference): Query
+    {
+        $query->registerRuntimeField('IMG', [
+            'data_type' => FileTable::class,
+            'reference' => [
+                "=this.{$thisFieldReference}" => 'ref.ID',
+            ],
+            'join_type' => 'INNER'
+        ])
+            ->registerRuntimeField('PICTURE_SRC', new ExpressionField(
+                'PICTURE_SRC',
+                'CONCAT("/upload/", %s, "/", %s)',
+                ['img.SUBDIR', 'img.FILE_NAME']
+            ));
+        return $query;
     }
 }

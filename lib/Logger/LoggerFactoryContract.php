@@ -3,7 +3,7 @@ namespace Itb\Core\Logger;
 
 use Psr\Log\LoggerInterface;
 
-interface LoggerFactoryInterface
+interface LoggerFactoryContract
 {
     public function channel(string $name): LoggerInterface;
 }

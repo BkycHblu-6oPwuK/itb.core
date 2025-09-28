@@ -33,3 +33,22 @@ Bitrix\Main\Loader::includeModule('itb.core');
 ## Конфигурация проекта
 
 класс ``` Itb\Core\Config ``` хранит необходимые свойства и методы для получения значений переменных из .env, а так же вы можете создавать какие либо публичные свойства и переопределять их в продакшен среде в файле ``` lib/local_config.php ```, который в гитигноре. Этот файл подключается вместе с модулем. И создать его, если вам это необходимо, нужно самостоятельно.
+
+## зависимости
+
+вручную в init.php выполнить внедрение
+
+```php
+use Itb\Core\Logger\LoggerServiceProvider;
+
+/**
+ * @var \Itb\Core\DI\AbstractServiceProvider[]
+ */
+$providers = [
+    LoggerServiceProvider::class,
+];
+
+foreach ($providers as $provider) {
+    (new $provider)->register();
+}
+```
