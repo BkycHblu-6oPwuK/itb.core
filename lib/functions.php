@@ -23,7 +23,7 @@ if (!function_exists('toFile')) {
     {
         static $logger = null;
         if ($logger === null) {
-            $logger = \Bitrix\Main\DI\ServiceLocator::getInstance()->get(\Itb\Core\Logger\LoggerFactoryInterface::class)->channel();
+            $logger = \Bitrix\Main\DI\ServiceLocator::getInstance()->get(\Itb\Core\Logger\LoggerFactoryContract::class)->channel();
         }
         if (!is_array($data)) {
             $data = [$data];

@@ -1,10 +1,8 @@
 <?php
 
-namespace Itb\Core;
+namespace Itb\Core\Traits;
 
-use Bitrix\Main\ORM\Data\DataManager;
-
-abstract class BaseTable extends DataManager
+trait TableManagerTrait
 {
     public static function dropTable() : void
     {

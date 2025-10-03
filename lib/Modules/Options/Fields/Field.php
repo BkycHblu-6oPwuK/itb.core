@@ -48,10 +48,15 @@ abstract class Field
         return $this;
     }
 
+    public function setDisabled(bool $isDisabled)
+    {
+        $this->isDisabled = $isDisabled;
+        return $this;
+    }
+
     public function isDisabled()
     {
-        $this->isDisabled = true;
-        return $this;
+        return $this->setDisabled(true);
     }
 
     public function getLabel()

@@ -1,7 +1,7 @@
 <?php
-namespace Itb\Core\Entity;
+namespace Itb\Core\Dto;
 
-class CacheSettings
+class CacheSettingsDto
 {
     public int $time;
     public readonly string $key;

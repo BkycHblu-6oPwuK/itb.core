@@ -2,8 +2,8 @@
 
 namespace Itb\Core\Traits;
 
-use Itb\Core\Entity\CacheSettings;
 use Bitrix\Main\Data\Cache;
+use Itb\Core\Dto\CacheSettingsDto;
 
 trait Cacheable
 {
@@ -16,7 +16,7 @@ trait Cacheable
         }
     }
 
-    protected function getCached(CacheSettings $cacheSettings, callable $callback)
+    protected function getCached(CacheSettingsDto $cacheSettings, callable $callback)
     {
         $this->initCacheInstance();
 
